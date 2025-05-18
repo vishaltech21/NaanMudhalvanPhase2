@@ -1,24 +1,25 @@
 import streamlit as st
-import joblib
+import pandas as pd
 import numpy as np
+import joblib
 
-# Load trained model and scaler
+# Load model & scaler
 model = joblib.load("model.pkl")
 scaler = joblib.load("scaler.pkl")
 
-st.title("🏠 House Price Predictor")
-st.write("Enter the features of the house to get an estimated price:")
+st.title("House Price Predictor")
 
-# Sample input fields
-feature_names = ["OverallQual", "GrLivArea", "GarageCars", "TotalBsmtSF", "FullBath", "YearBuilt"]
-input_data = []
+# User inputs
+OverallQual = st.slider("Overall Quality", 1, 10, 5)
+GrLivArea = st.number_input("Ground Living Area (sq ft)", 500, 5000, 1500)
+GarageCars = st.slider("Garage Cars", 0, 4, 2)
+TotalBsmtSF = st.number_input("Basement SF", 0, 3000, 800)
+FullBath = st.slider("Full Bathrooms", 0, 4, 2)
+YearBuilt = st.number_input("Year Built", 1900, 2023, 2000)
 
-for feature in feature_names:
-    val = st.number_input(f"{feature}:", min_value=0.0, value=1.0)
-    input_data.append(val)
-
+# Predict
 if st.button("Predict Price"):
-    input_array = np.array(input_data).reshape(1, -1)
-    scaled_input = scaler.transform(input_array)
-    prediction = model.predict(scaled_input)[0]
-    st.success(f"Estimated House Price: ${prediction:,.2f}")
+    features = np.array([[OverallQual, GrLivArea, GarageCars, TotalBsmtSF, FullBath, YearBuilt]])
+    features_scaled = scaler.transform(features)
+    price = model.predict(features_scaled)[0]
+    st.success(f"Estimated House Price: ${price:,.2f}")
